@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
-import { Bill } from '../types';
+import { Bill } from '../types.ts';
 import { Search, Receipt, Calendar, User, Eye, X, Printer, Download } from 'lucide-react';
-import { convertToCSV, downloadCSV } from '../logic/csvUtils';
+import { convertToCSV, downloadCSV } from '../logic/csvUtils.ts';
 
 interface SalesHistoryProps {
   bills: Bill[];

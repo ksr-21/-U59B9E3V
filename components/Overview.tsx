@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Product, ForecastResult, Anomaly } from '../types';
+import { Product, ForecastResult, Anomaly } from '../types.ts';
 import { AlertCircle, TrendingDown, ArrowUpRight, CheckCircle2 } from 'lucide-react';
 
 interface OverviewProps {

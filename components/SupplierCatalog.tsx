@@ -1,9 +1,9 @@
+
 import React, { useState, useRef } from 'react';
-import { Product, UserProfile } from '../types';
-// Added missing Loader2 import from lucide-react
+import { Product, UserProfile } from '../types.ts';
 import { Plus, X, Save, Trash2, Search, Download, Upload, FileQuestion, Edit3, Package, CheckCircle2, FileText, Loader2 } from 'lucide-react';
-import { convertToCSV, downloadCSV, parseCSV } from '../logic/csvUtils';
-import { dbService } from '../services/dbService';
+import { convertToCSV, downloadCSV, parseCSV } from '../logic/csvUtils.ts';
+import { dbService } from '../services/dbService.ts';
 
 interface SupplierCatalogProps {
   products: Product[];

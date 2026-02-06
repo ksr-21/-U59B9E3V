@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Product, BillItem } from '../types';
+import { Product, BillItem } from '../types.ts';
 import { ShoppingCart, Plus, Minus, Trash2, Receipt, CheckCircle, Printer, Search, Weight } from 'lucide-react';
 
 interface SalesTerminalProps {

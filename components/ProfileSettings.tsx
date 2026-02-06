@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { UserProfile } from '../types';
-import { dbService } from '../services/dbService';
+import { UserProfile } from '../types.ts';
+import { dbService } from '../services/dbService.ts';
 import { User, Store, Phone, Mail, Save, CheckCircle, Loader2, MessageCircle } from 'lucide-react';
 
 interface ProfileSettingsProps {

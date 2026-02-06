@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { DashboardTab } from '../types';
+import { DashboardTab } from '../types.ts';
 import { 
   LayoutDashboard, 
   Package, 

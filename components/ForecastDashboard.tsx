@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Product, SalesData, ForecastResult } from '../types';
+import { Product, SalesData, ForecastResult } from '../types.ts';
 import { 
   LineChart, 
   Line, 
@@ -11,7 +11,7 @@ import {
   ResponsiveContainer, 
   Legend
 } from 'recharts';
-import { getAIExplanation } from '../services/geminiService';
+import { getAIExplanation } from '../services/geminiService.ts';
 import { Sparkles, BrainCircuit, RefreshCcw, TrendingUp, Search, Loader2 } from 'lucide-react';
 
 interface ForecastDashboardProps {
