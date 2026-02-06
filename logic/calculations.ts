@@ -1,5 +1,5 @@
 
-import { Product, SalesData, ForecastResult, Anomaly } from '../types';
+import { Product, SalesData, ForecastResult, Anomaly } from '../types.ts';
 
 /**
  * Enhanced Simulation: Support for festival-based category spikes

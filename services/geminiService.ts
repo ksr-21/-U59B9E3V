@@ -1,6 +1,6 @@
 
 import { GoogleGenAI } from "@google/genai";
-import { Product, ForecastResult } from "../types";
+import { Product, ForecastResult } from "../types.ts";
 
 export const getAIExplanation = async (product: Product, forecast: ForecastResult): Promise<string> => {
   try {
