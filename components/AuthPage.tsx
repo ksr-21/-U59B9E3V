@@ -1,13 +1,12 @@
-
 import React, { useState } from 'react';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
   updateProfile 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { auth } from "../firebase";
-import { dbService } from "../services/dbService";
-import { UserRole } from "../types";
+import { auth } from "../firebase.ts";
+import { dbService } from "../services/dbService.ts";
+import { UserRole } from "../types.ts";
 import { Box, Lock, Mail, User, ArrowRight, Loader2, Sparkles, Store, Truck, Phone } from 'lucide-react';
 
 const AuthPage: React.FC = () => {
