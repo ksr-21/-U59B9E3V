@@ -1,0 +1,5 @@
+{
+  "name": "Copy of SmartInventory AI",
+  "description": "An intelligent inventory management system for retail SMEs featuring demand forecasting, anomaly detection, and explainable AI insights using Gemini.",
+  "requestFramePermissions": []
+}
