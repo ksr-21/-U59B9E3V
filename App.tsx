@@ -1,22 +1,23 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { onAuthStateChanged, User, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { auth } from './firebase';
-import { dbService } from './services/dbService';
-import { DashboardTab, Product, SalesData, ForecastResult, Bill, BillItem, UserRole, UserProfile, SupplyOrder, Anomaly } from './types';
-import { PRODUCTS, SALES_HISTORY } from './mockData';
-import { calculateForecast, detectAnomalies, SimulationParams } from './logic/calculations';
-import Sidebar from './components/Sidebar';
-import Overview from './components/Overview';
-import InventoryTable from './components/InventoryTable';
-import ForecastDashboard from './components/ForecastDashboard';
-import SimulationTool from './components/SimulationTool';
-import SalesTerminal from './components/SalesTerminal';
-import SalesHistory from './components/SalesHistory';
-import ProfileSettings from './components/ProfileSettings';
-import SupplierCatalog from './components/SupplierCatalog';
-import AuthPage from './components/AuthPage';
-import { Loader2, LogOut, Truck, Package, Bell, ShoppingBag, Clock, CheckCircle2, Search, UserCircle, XCircle, BellRing } from 'lucide-react';
+import { auth } from './firebase.ts';
+import { dbService } from './services/dbService.ts';
+import { DashboardTab, Product, SalesData, ForecastResult, Bill, BillItem, UserRole, UserProfile, SupplyOrder, Anomaly } from './types.ts';
+import { PRODUCTS, SALES_HISTORY } from './mockData.ts';
+import { calculateForecast, detectAnomalies, SimulationParams } from './logic/calculations.ts';
+import Sidebar from './components/Sidebar.tsx';
+import Overview from './components/Overview.tsx';
+import InventoryTable from './components/InventoryTable.tsx';
+import ForecastDashboard from './components/ForecastDashboard.tsx';
+import SimulationTool from './components/SimulationTool.tsx';
+import SalesTerminal from './components/SalesTerminal.tsx';
+import SalesHistory from './components/SalesHistory.tsx';
+import ProfileSettings from './components/ProfileSettings.tsx';
+import SupplierCatalog from './components/SupplierCatalog.tsx';
+import AuthPage from './components/AuthPage.tsx';
+import VoiceAssistant from './components/VoiceAssistant.tsx';
+import { Loader2, LogOut, Truck, Package, Bell, ShoppingBag, Clock, CheckCircle2, Search, UserCircle, XCircle } from 'lucide-react';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -39,14 +40,19 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const profile = await dbService.getUserProfile(user.uid);
-        setUserProfile(profile);
-      } else {
-        setUserProfile(null);
+      try {
+        if (user) {
+          const profile = await dbService.getUserProfile(user.uid);
+          setUserProfile(profile);
+        } else {
+          setUserProfile(null);
+        }
+      } catch (error) {
+        console.error("Auth profile fetch error:", error);
+      } finally {
+        setCurrentUser(user);
+        setAuthLoading(false);
       }
-      setCurrentUser(user);
-      setAuthLoading(false);
     });
     return unsubscribe;
   }, []);
@@ -73,7 +79,6 @@ const App: React.FC = () => {
       setSales(fetchedSales);
       setBills(fetchedBills);
 
-      // Simple notification logic: count orders that were updated recently
       if (userProfile.role === UserRole.RETAILER) {
         const newUpdates = fetchedOrders.filter(o => (o.status === 'SHIPPED' || o.status === 'CANCELLED') && 
           (!supplyOrders.find(old => old.id === o.id) || supplyOrders.find(old => old.id === o.id)?.status === 'PENDING')).length;
@@ -90,7 +95,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     refreshData();
-    const interval = setInterval(refreshData, 30000); // Polling for "real-time" notifications
+    const interval = setInterval(refreshData, 30000);
     return () => clearInterval(interval);
   }, [currentUser, userProfile, activeTab]);
 
@@ -180,7 +185,12 @@ const App: React.FC = () => {
   };
 
   if (authLoading) {
-    return <div className="h-screen w-full flex items-center justify-center bg-white"><Loader2 size={40} className="animate-spin text-indigo-600" /></div>;
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-white">
+        <Loader2 size={40} className="animate-spin text-indigo-600 mb-4" />
+        <p className="text-slate-500 font-medium animate-pulse">Initializing SmartStock AI...</p>
+      </div>
+    );
   }
 
   if (!currentUser || !userProfile) return <AuthPage />;
@@ -336,7 +346,6 @@ const App: React.FC = () => {
     );
   }
 
-  // Retailer Layout
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden text-slate-900">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -414,6 +423,11 @@ const App: React.FC = () => {
             <ProfileSettings profile={userProfile} setProfile={setUserProfile} />
           )}
         </div>
+        
+        {/* Mount Voice Assistant for Retailer */}
+        {userProfile.role === UserRole.RETAILER && (
+          <VoiceAssistant products={products} businessName={userProfile.businessName} />
+        )}
       </main>
     </div>
   );

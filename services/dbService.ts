@@ -12,8 +12,8 @@ import {
   deleteDoc,
   limit
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { db } from "../firebase";
-import { Product, SalesData, Bill, UserProfile, SupplyOrder, UserRole } from "../types";
+import { db } from "../firebase.ts";
+import { Product, SalesData, Bill, UserProfile, SupplyOrder, UserRole } from "../types.ts";
 
 export const dbService = {
   // User Profiles
@@ -85,7 +85,7 @@ export const dbService = {
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   },
 
-  // Products (Works for both Retailer and Supplier collections)
+  // Products
   async getProducts(uid: string): Promise<Product[]> {
     const q = query(collection(db, "users", uid, "products"));
     const querySnapshot = await getDocs(q);

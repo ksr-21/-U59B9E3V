@@ -1,8 +1,9 @@
 
 import React, { useState, useRef } from 'react';
-import { Product } from '../types';
-import { Plus, X, Save, Package, Trash2, ArrowUpCircle, Search, Download, Upload, FileQuestion, Edit3, Phone, User } from 'lucide-react';
-import { convertToCSV, downloadCSV, parseCSV } from '../logic/csvUtils';
+import { Product } from '../types.ts';
+import { Plus, X, Save, Package, Trash2, ArrowUpCircle, Search, Download, Upload, FileQuestion, Edit3, Phone, User, Sparkles, Loader2 } from 'lucide-react';
+import { convertToCSV, downloadCSV, parseCSV } from '../logic/csvUtils.ts';
+import { GoogleGenAI } from '@google/genai';
 
 interface InventoryTableProps {
   products: Product[];
@@ -15,6 +16,8 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ products, setProducts, 
   const [searchTerm, setSearchTerm] = useState('');
   const [restockQty, setRestockQty] = useState<{ [id: string]: number }>({});
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState<Partial<Product>>({
@@ -28,6 +31,36 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ products, setProducts, 
     supplierName: '',
     supplierPhone: ''
   });
+
+  const generateAIImage = async () => {
+    if (!formData.name) {
+      alert("Please enter a product name first to generate an image.");
+      return;
+    }
+    setIsGeneratingImage(true);
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-image',
+        contents: {
+          parts: [{ text: `A clean, professional studio photograph of ${formData.name}, commercial product style, white background, high resolution.` }]
+        },
+        config: { imageConfig: { aspectRatio: "1:1" } }
+      });
+
+      for (const part of response.candidates?.[0]?.content?.parts || []) {
+        if (part.inlineData) {
+          setGeneratedImageUrl(`data:image/png;base64,${part.inlineData.data}`);
+          break;
+        }
+      }
+    } catch (err) {
+      console.error("Image generation failed:", err);
+      alert("Failed to generate AI image. Please try again.");
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
 
   const filteredProducts = products.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -46,12 +79,14 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ products, setProducts, 
       supplierName: '',
       supplierPhone: ''
     });
+    setGeneratedImageUrl(null);
     setShowForm('add');
   };
 
   const handleOpenEdit = (product: Product) => {
     setEditingProduct(product);
     setFormData({ ...product });
+    setGeneratedImageUrl(null);
     setShowForm('edit');
   };
 
@@ -278,7 +313,18 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ products, setProducts, 
               <form onSubmit={handleSubmit} className="p-8 space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 block">Product Name</label>
+                    <div className="flex justify-between items-end mb-1.5">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Product Name</label>
+                      <button 
+                        type="button"
+                        onClick={generateAIImage}
+                        disabled={isGeneratingImage}
+                        className="text-[10px] font-black uppercase text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-colors disabled:opacity-50"
+                      >
+                        {isGeneratingImage ? <Loader2 size={10} className="animate-spin"/> : <Sparkles size={10} />}
+                        {isGeneratingImage ? 'Imaging...' : 'Gen AI Image'}
+                      </button>
+                    </div>
                     <input 
                       required 
                       type="text" 
@@ -286,6 +332,14 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ products, setProducts, 
                       value={formData.name} 
                       onChange={(e) => setFormData({...formData, name: e.target.value})} 
                     />
+                    {generatedImageUrl && (
+                      <div className="mt-3 relative group rounded-xl overflow-hidden border border-slate-200 aspect-square w-32 mx-auto">
+                        <img src={generatedImageUrl} className="w-full h-full object-cover" alt="Generated" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                           <button type="button" onClick={() => setGeneratedImageUrl(null)} className="text-white"><Trash2 size={18}/></button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 block">Category</label>
